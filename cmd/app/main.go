@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	cep := "35780000"
+	cep := "01001000"
 	timeout := 1 * time.Second
 	address, source, err := getAddress(cep, timeout)
 
@@ -24,7 +24,15 @@ func getAddress(cep string, timeout time.Duration) (*models.Address, string, err
 	resultChan := make(chan *api.APIResponse, 2)
 	errChan := make(chan error, 2)
 
+	go api.GetAddressFromBrasilAPI(cep, resultChan, errChan)
 	go api.GetAddressFromViaCEP(cep, resultChan, errChan)
 
-	return nil, "", fmt.Errorf("timeout after %v", timeout)
+	select {
+	case res := <-resultChan:
+		return res.Address, res.Source, nil
+	case err := <-errChan:
+		return nil, "", err
+	case <-time.After(timeout):
+		return nil, "", fmt.Errorf("timeout after %v", timeout)
+	}
 }
