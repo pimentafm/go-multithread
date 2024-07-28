@@ -1,18 +1,30 @@
 package main
 
-type Address struct {
-	CEP         string `json:"cep"`
-	Logradouro  string `json:"logradouro"`
-	Complemento string `json:"complemento"`
-	Bairro      string `json:"bairro"`
-	Localidade  string `json:"localidade"`
-	UF          string `json:"uf"`
-	IBGE        string `json:"ibge"`
-	GIA         string `json:"gia"`
-	DDD         string `json:"ddd"`
-	SIAFI       string `json:"siafi"`
-}
+import (
+	"fmt"
+	"time"
+
+	"github.com/pimentafm/go-multithread/api"
+	"github.com/pimentafm/go-multithread/models"
+)
 
 func main() {
+	cep := "35780000"
+	timeout := 1 * time.Second
+	address, source, err := getAddress(cep, timeout)
 
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+	} else {
+		fmt.Printf("Address from %s:\n%+v\n", source, address)
+	}
+}
+
+func getAddress(cep string, timeout time.Duration) (*models.Address, string, error) {
+	resultChan := make(chan *api.APIResponse, 2)
+	errChan := make(chan error, 2)
+
+	go api.GetAddressFromViaCEP(cep, resultChan, errChan)
+
+	return nil, "", fmt.Errorf("timeout after %v", timeout)
 }
