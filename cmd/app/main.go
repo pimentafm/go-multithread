@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	} else {
-		fmt.Printf("Address from %s:\n%+v\n", source, address)
+		printAddress(address, source)
 	}
 }
 
@@ -35,4 +35,13 @@ func getAddress(cep string, timeout time.Duration) (*models.Address, string, err
 	case <-time.After(timeout):
 		return nil, "", fmt.Errorf("timeout after %v", timeout)
 	}
+}
+
+func printAddress(address *models.Address, source string) {
+	fmt.Printf("-------- %s ----------\n", source)
+	fmt.Printf("CEP: %s\n", address.CEP)
+	fmt.Printf("Street: %s\n", address.Street)
+	fmt.Printf("Neighborhood: %s\n", address.Neighborhood)
+	fmt.Printf("City: %s\n", address.City)
+	fmt.Printf("State: %s\n", address.State)
 }
